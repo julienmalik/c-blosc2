@@ -478,9 +478,12 @@ static const blosc2_sparams BLOSC_SPARAMS_DEFAULTS = \
 /* Create a new super-chunk. */
 BLOSC_EXPORT blosc2_sheader* blosc2_new_schunk(blosc2_sparams* sparams);
 
-/* Set a delta reference for the super-chunk */
+/* Set a delta reference for the super-chunk. */
 BLOSC_EXPORT int blosc2_set_delta_ref(blosc2_sheader* sheader,
     size_t typesize, size_t nbytes, void* ref);
+
+/* Free the caches inside a super-chunk.  This cannot fail. */
+BLOSC_EXPORT void blosc2_clean_caches(blosc2_sheader* sheader);
 
 /* Free all memory from a super-chunk. */
 BLOSC_EXPORT int blosc2_destroy_schunk(blosc2_sheader* sheader);

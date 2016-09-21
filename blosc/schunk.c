@@ -211,6 +211,15 @@ int blosc2_decompress_chunk(blosc2_sheader* sheader, int64_t nchunk,
 }
 
 
+/* Free the caches inside a super-chunk. This cannot fail. */
+void blosc2_clean_caches(blosc2_sheader* sheader) {
+  if (sheader->reserved != NULL) {
+    free(sheader->reserved);
+    sheader->reserved = NULL;
+  }
+}
+
+
 /* Free all memory from a super-chunk. */
 int blosc2_destroy_schunk(blosc2_sheader* sheader) {
   int i;
