@@ -817,7 +817,7 @@ static int blosc_d(
     uint8_t* filters;
     filters = decode_filters(context->schunk->filters);
     if (filters[0] == BLOSC_DELTA) {
-      delta_decoder8(context->schunk->filters_chunk, offset, blocksize, dest + offset);
+      delta_decoder8(context->schunk, context->schunk->filters_chunk, offset, blocksize, dest + offset);
     }
     free(filters);
   }

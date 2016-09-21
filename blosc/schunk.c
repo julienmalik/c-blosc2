@@ -229,6 +229,9 @@ int blosc2_destroy_schunk(blosc2_sheader* sheader) {
     }
     free(sheader->data);
   }
+  if (sheader->reserved != NULL) {
+    free(sheader->reserved);
+  }
   free(sheader);
 
   /* The super-chunk is destroyed, so remove the internal reference to it */
@@ -524,7 +527,7 @@ int blosc2_packed_decompress_chunk(void* packed, int nchunk, void** dest) {
 
   /* Apply filters after de-compress */
   if (filters[0] == BLOSC_DELTA) {
-    delta_decoder8(filters_chunk, 0, nbytes, *dest);
+    delta_decoder8(NULL, filters_chunk, 0, nbytes, *dest);
   }
 
   free(filters);

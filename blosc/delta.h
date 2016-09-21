@@ -11,6 +11,6 @@
 
 void delta_encoder8(uint8_t* filters_chunk, int32_t offset, int32_t nbytes, uint8_t* src, uint8_t* dest);
 
-void delta_decoder8(uint8_t* filters_chunk, int32_t offset, int32_t nbytes, uint8_t* src);
+void delta_decoder8(blosc2_sheader* sheader, uint8_t* filters_chunk, int32_t offset, int32_t nbytes, uint8_t* src);
 
 #endif //BLOSC_DELTA_H
