@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "memcopy.h"
 #include "blosclz.h"
 
 #if defined(_WIN32) && !defined(__MINGW32__)
@@ -89,16 +90,26 @@
 #define MAX_DISTANCE 8191
 #define MAX_FARDISTANCE (65535+MAX_DISTANCE-1)
 
-#ifdef BLOSCLZ_STRICT_ALIGN
-  #define BLOSCLZ_READU16(p) ((p)[0] | (p)[1]<<8)
-#else
-  #define BLOSCLZ_READU16(p) *((const uint16_t*)(p))
-#endif
+// #ifdef BLOSCLZ_STRICT_ALIGN
+//   #define BLOSCLZ_READU16(p) ((p)[0] | (p)[1]<<8)
+// #else
+//   #define BLOSCLZ_READU16(p) *((const uint16_t*)(p))
+// #endif
+
+#define BLOSCLZ_READU16(p) load_short(p, 0)
 
 
 /*
  * Fast copy macros
  */
+#if (defined(__GNUC__) || defined(__clang__))
+#define MEMCPY __builtin_memcpy
+#define MEMSET __builtin_memset
+#else
+#define MEMCPY memcpy
+#define MEMSET memset
+#endif
+
 #if defined(_WIN32)
   #define CPYSIZE              32
 #else
@@ -120,21 +131,15 @@
     cpy -= ilen;                              \
     SAFECOPY(op, ref, cpy);                   \
     ref -= (op-cpy); op = cpy;                \
-    for(; ilen; --ilen)                          \
+    for(; ilen; --ilen)                       \
         *op++ = *ref++;                       \
   }                                           \
 }
 
+//#define BLOCK_COPY(op, ref, len, op_limit)  chunk_copy(op, ref, op_limit, len)
+
 #define SAFE_COPY(op, ref, len, op_limit)     \
 if (llabs(op-ref) < CPYSIZE) {                \
-  for(; len; --len)                           \
-    *op++ = *ref++;                           \
-}                                             \
-else BLOCK_COPY(op, ref, len, op_limit);
-
-/* Copy optimized for GCC 4.8.  Seems like long copy loops are optimal. */
-#define GCC_SAFE_COPY(op, ref, len, op_limit) \
-if ((len > 32) || (llabs(op-ref) < CPYSIZE)) { \
   for(; len; --len)                           \
     *op++ = *ref++;                           \
 }                                             \
@@ -152,9 +157,9 @@ else BLOCK_COPY(op, ref, len, op_limit);
  */
 #define MINMATCH 3
 #define HASH_FUNCTION2(v, p, l) {                       \
-  v = BLOSCLZ_READU16(p);                \
+  v = BLOSCLZ_READU16(p);                               \
   v = (v * 2654435761U) >> ((MINMATCH * 8) - (l + 1));  \
-  v &= (1 << l) - 1;                    \
+  v &= (1 << l) - 1;                                    \
 }
 
 #define LITERAL(ip, op, op_limit, anchor, copy) {        \
@@ -186,7 +191,7 @@ int blosclz_compress(const int opt_level, const void* input, int length,
      $ bench/bench blosclz single 4
      $ bench/bench blosclz single 4 4194280 12 25
      and taking the minimum times on a i5-3380M @ 2.90GHz.
-     Curiously enough, values >= 14 does not always
+     Curiously enough, values >= 14 do not always
      get maximum compression, even with large blocksizes. */
   int8_t hash_log_[10] = {-1, 11, 11, 11, 12, 13, 13, 13, 13, 13};
   uint8_t hash_log = hash_log_[opt_level];
@@ -475,11 +480,7 @@ int blosclz_decompress(const void* input, int length, void* output, int maxout) 
         /* copy from reference */
         ref--;
         len += 3;
-#if !defined(_WIN32) && ((defined(__GNUC__) || defined(__INTEL_COMPILER) || !defined(__clang__)))
-        GCC_SAFE_COPY(op, ref, len, op_limit);
-#else
         SAFE_COPY(op, ref, len, op_limit);
-#endif
       }
     }
     else {
@@ -494,6 +495,7 @@ int blosclz_decompress(const void* input, int length, void* output, int maxout) 
 #endif
 
       BLOCK_COPY(op, ip, ctrl, op_limit);
+      //op = chunk_copy(op, ip, llabs(op-ip), ctrl);
 
       loop = (int32_t)BLOSCLZ_EXPECT_CONDITIONAL(ip < ip_limit);
       if (loop)
