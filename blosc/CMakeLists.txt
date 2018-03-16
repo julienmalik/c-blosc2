@@ -267,7 +267,7 @@ endif (BUILD_STATIC)
 
 # install
 if (BLOSC_INSTALL)
-    install(FILES blosc.h blosc-export.h DESTINATION include COMPONENT DEV)
+    install(FILES blosc.h blosc-export.h timestamp.h DESTINATION include COMPONENT DEV)
     if(BUILD_SHARED)
         install(TARGETS blosc_shared DESTINATION ${lib_dir} COMPONENT LIB)
     endif(BUILD_SHARED)
