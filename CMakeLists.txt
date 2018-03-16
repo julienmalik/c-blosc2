@@ -67,13 +67,16 @@
 #    LIB: includes blosc.so
 #    DEV: static includes blosc.a and blosc.h
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
 
 cmake_minimum_required(VERSION 2.8.10)
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.4)
   cmake_policy(SET CMP0063 NEW)
 ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.4)
 project(blosc)
+
+add_compile_options( "-std=c99" )
+add_compile_options( "-D_GNU_SOURCE" )
 
 # parse the full version numbers from blosc.h
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/blosc/blosc.h _blosc_h_contents)
@@ -255,7 +258,7 @@ if (CMAKE_SYSTEM_PROCESSOR STREQUAL i386 OR
         # Unrecognized compiler. Emit a warning message to let the user know hardware-acceleration won't be available.
         message(WARNING "Unable to determine which ${CMAKE_SYSTEM_PROCESSOR} hardware features are supported by the C compiler (${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}).")
     endif ()
-elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL armv7l)
+elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL armv7l OR CMAKE_SYSTEM_PROCESSOR STREQUAL armv7ahf)
     if (CMAKE_C_COMPILER_ID STREQUAL GNU)
         if (CMAKE_C_COMPILER_VERSION VERSION_GREATER 4.7 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 4.7)
             set(COMPILER_SUPPORT_NEON TRUE)
