@@ -67,15 +67,15 @@
 #    LIB: includes blosc.so
 #    DEV: static includes blosc.a and blosc.h
 
-if (NOT WIN32)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-endif(NOT WIN32)
-
 cmake_minimum_required(VERSION 2.8.10)
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.4)
   cmake_policy(SET CMP0063 NEW)
 ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.4)
 project(blosc)
+
+if(NOT WIN32)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
+endif()
 
 # parse the full version numbers from blosc.h
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/blosc/blosc.h _blosc_h_contents)
