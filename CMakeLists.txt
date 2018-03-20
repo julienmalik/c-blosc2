@@ -267,7 +267,7 @@ if (CMAKE_SYSTEM_PROCESSOR STREQUAL i386 OR
         # Unrecognized compiler. Emit a warning message to let the user know hardware-acceleration won't be available.
         message(WARNING "Unable to determine which ${CMAKE_SYSTEM_PROCESSOR} hardware features are supported by the C compiler (${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}).")
     endif ()
-elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL armv7l OR
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES arm OR
         CMAKE_SYSTEM_PROCESSOR STREQUAL aarch64)
     if (CMAKE_C_COMPILER_ID STREQUAL GNU)
         if (CMAKE_C_COMPILER_VERSION VERSION_GREATER 4.7 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 4.7)
@@ -288,7 +288,7 @@ elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL armv7l OR
     endif ()
 elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL ppc64le)
     if (CMAKE_C_COMPILER_ID STREQUAL GNU AND CMAKE_C_COMPILER_VERSION VERSION_GREATER 8)
-		set(COMPILER_SUPPORT_ALTIVEC TRUE)    
+		set(COMPILER_SUPPORT_ALTIVEC TRUE)
     else ()
         set(COMPILER_SUPPORT_ALTIVEC FALSE)
     endif ()
