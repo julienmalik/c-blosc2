@@ -332,6 +332,12 @@ if (MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif (MSVC)
 
+if (CMAKE_C_COMPILER_ID STREQUAL GNU)
+  # for pthread_barrier_t.
+  # ideally there should be a compilation test for enabling this
+  add_definitions(-D_XOPEN_SOURCE=600)
+endif()
+
 if (WIN32)
     # For some supporting headers
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/blosc")
