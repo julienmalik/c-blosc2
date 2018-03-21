@@ -276,45 +276,56 @@ return BLOSC_HAVE_NOTHING;
 
 static shuffle_implementation_t get_shuffle_implementation() {
   blosc_cpu_features cpu_features = blosc_get_cpu_features();
-#if defined(SHUFFLE_AVX2_ENABLED)
-  if (cpu_features & BLOSC_HAVE_AVX2) {
-    shuffle_implementation_t impl_avx2;
-    impl_avx2.name = "avx2";
-    impl_avx2.shuffle = (shuffle_func)shuffle_avx2;
-    impl_avx2.unshuffle = (unshuffle_func)unshuffle_avx2;
-    impl_avx2.bitshuffle = (bitshuffle_func)bshuf_trans_bit_elem_avx2;
-    impl_avx2.bitunshuffle = (bitunshuffle_func)bshuf_untrans_bit_elem_avx2;
-    return impl_avx2;
+
+  /*
+   * By default, use the optimized shuffle implementation if available
+   * If BLOSC_GENERIC_SHUFFLE env var is set, then force using the generic impl
+   */
+  char* envvar = getenv("BLOSC_GENERIC_SHUFFLE");
+  bool force_generic_impl = false;
+  if (envvar != NULL) {
+    force_generic_impl = true;
   }
+
+  if (!force_generic_impl) {
+#if defined(SHUFFLE_AVX2_ENABLED)
+    if (cpu_features & BLOSC_HAVE_AVX2) {
+      shuffle_implementation_t impl_avx2;
+      impl_avx2.name = "avx2";
+      impl_avx2.shuffle = (shuffle_func)shuffle_avx2;
+      impl_avx2.unshuffle = (unshuffle_func)unshuffle_avx2;
+      impl_avx2.bitshuffle = (bitshuffle_func)bshuf_trans_bit_elem_avx2;
+      impl_avx2.bitunshuffle = (bitunshuffle_func)bshuf_untrans_bit_elem_avx2;
+      return impl_avx2;
+    }
 #endif  /* defined(SHUFFLE_AVX2_ENABLED) */
 
 #if defined(SHUFFLE_SSE2_ENABLED)
-  if (cpu_features & BLOSC_HAVE_SSE2) {
-    shuffle_implementation_t impl_sse2;
-    impl_sse2.name = "sse2";
-    impl_sse2.shuffle = (shuffle_func)shuffle_sse2;
-    impl_sse2.unshuffle = (unshuffle_func)unshuffle_sse2;
-    impl_sse2.bitshuffle = (bitshuffle_func)bshuf_trans_bit_elem_sse2;
-    impl_sse2.bitunshuffle = (bitunshuffle_func)bshuf_untrans_bit_elem_sse2;
-    return impl_sse2;
-  }
+    if (cpu_features & BLOSC_HAVE_SSE2) {
+      shuffle_implementation_t impl_sse2;
+      impl_sse2.name = "sse2";
+      impl_sse2.shuffle = (shuffle_func)shuffle_sse2;
+      impl_sse2.unshuffle = (unshuffle_func)unshuffle_sse2;
+      impl_sse2.bitshuffle = (bitshuffle_func)bshuf_trans_bit_elem_sse2;
+      impl_sse2.bitunshuffle = (bitunshuffle_func)bshuf_untrans_bit_elem_sse2;
+      return impl_sse2;
+    }
 #endif  /* defined(SHUFFLE_SSE2_ENABLED) */
 
 #if defined(SHUFFLE_NEON_ENABLED)
-  if (cpu_features & BLOSC_HAVE_NEON) {
-    shuffle_implementation_t impl_neon;
-    impl_neon.name = "neon";
-    impl_neon.shuffle = (shuffle_func)shuffle_neon;
-    impl_neon.unshuffle = (unshuffle_func)unshuffle_neon;
-//    impl_neon.shuffle = (shuffle_func)shuffle_generic;
-//    impl_neon.unshuffle = (unshuffle_func)unshuffle_generic;
-    impl_neon.bitshuffle = (bitshuffle_func)bitshuffle_neon;
-    impl_neon.bitunshuffle = (bitunshuffle_func)bitunshuffle_neon;
-//    impl_neon.bitshuffle = (bitshuffle_func)bshuf_trans_bit_elem_scal;
-//    impl_neon.bitunshuffle = (bitunshuffle_func)bshuf_untrans_bit_elem_scal;
-    return impl_neon;
-  }
+    if (cpu_features & BLOSC_HAVE_NEON) {
+      shuffle_implementation_t impl_neon;
+      impl_neon.name = "neon";
+      impl_neon.shuffle = (shuffle_func)shuffle_neon;
+      impl_neon.unshuffle = (unshuffle_func)unshuffle_neon;
+      impl_neon.bitshuffle = (bitshuffle_func)bitshuffle_neon;
+      impl_neon.bitunshuffle = (bitunshuffle_func)bitunshuffle_neon;
+  //    impl_neon.bitshuffle = (bitshuffle_func)bshuf_trans_bit_elem_scal;
+  //    impl_neon.bitunshuffle = (bitunshuffle_func)bshuf_untrans_bit_elem_scal;
+      return impl_neon;
+    }
 #endif  /* defined(SHUFFLE_NEON_ENABLED) */
+  }
 
   #if defined(SHUFFLE_ALTIVEC_ENABLED)
   if (cpu_features & BLOSC_HAVE_ALTIVEC) {
