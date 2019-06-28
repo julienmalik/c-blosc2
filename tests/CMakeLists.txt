@@ -6,6 +6,7 @@ file(GLOB SOURCES test_*.c)
 # is not available on cmake 2.8
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test_shuffle_roundtrip_sse2.c)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test_shuffle_roundtrip_avx2.c)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test_shuffle_roundtrip_altivec.c)
 
 # flags
 link_directories(${PROJECT_BINARY_DIR}/blosc)
