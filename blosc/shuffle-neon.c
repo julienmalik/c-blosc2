@@ -71,7 +71,7 @@ shuffle4_neon(uint8_t* const dest, const uint8_t* const src,
 }
 
 /* Routine optimized for shuffling a buffer for a type size of 8 bytes. */
-shuffle8_neon(uint8_t
+void shuffle8_neon(uint8_t
 * const dest,
 const uint8_t* const src,
 const int32_t vectorizable_elements,
@@ -137,7 +137,7 @@ vreinterpret_u8_u32(r2[j]
 }
 
 /* Routine optimized for shuffling a buffer for a type size of 16 bytes. */
-shuffle16_neon(uint8_t
+void shuffle16_neon(uint8_t
 * const dest,
 const uint8_t* const src,
 const int32_t vectorizable_elements,
@@ -274,7 +274,7 @@ vst4q_u8(dest
 }
 
 /* Routine optimized for unshuffling a buffer for a type size of 8 bytes. */
-unshuffle8_neon(uint8_t
+void unshuffle8_neon(uint8_t
 * const dest,
 const uint8_t* const src,
 const int32_t vectorizable_elements,
@@ -340,7 +340,7 @@ vreinterpret_u8_u32(r2[j]
 }
 
 /* Routine optimized for unshuffling a buffer for a type size of 16 bytes. */
-unshuffle16_neon(uint8_t
+void unshuffle16_neon(uint8_t
 * const dest,
 const uint8_t* const src,
 const int32_t vectorizable_elements,
